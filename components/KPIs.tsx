@@ -7,7 +7,8 @@ import {
 } from 'recharts';
 import { 
   FileSpreadsheet, Plus, X, Boxes, Trash2, ShoppingCart, 
-  TrendingUp, ShieldCheck, Activity, History, MessageSquareWarning, FileDown 
+  TrendingUp, ShieldCheck, Activity, History, MessageSquareWarning, FileDown,
+  ChevronRight, ChevronLeft
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -16,6 +17,14 @@ interface KPIProps {
   setData: React.Dispatch<React.SetStateAction<KPIData[]>>;
   requestAuth: (action: () => void) => void;
 }
+
+const ARABIC_MONTHS = [
+  'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+  'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
+];
+
+// Expanded years range from 2010 to 2060
+const YEARS_RANGE = Array.from({ length: 51 }, (_, i) => (2010 + i).toString());
 
 // Custom Tooltip Component for a polished look
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -38,7 +47,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export const KPIs: React.FC<KPIProps> = ({ data, setData, requestAuth }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newData, setNewData] = useState<Partial<KPIData>>({
-    month: '',
+    month: ARABIC_MONTHS[new Date().getMonth()],
     year: new Date().getFullYear().toString(),
     qualityRate: 95, defects: 0,
     reservedBlowPieces: 0, reservedBlowWeight: 0,
@@ -60,7 +69,7 @@ export const KPIs: React.FC<KPIProps> = ({ data, setData, requestAuth }) => {
         setData(prev => [...prev, newData as KPIData]);
         setIsModalOpen(false);
         setNewData({
-            month: '',
+            month: ARABIC_MONTHS[new Date().getMonth()],
             year: new Date().getFullYear().toString(),
             qualityRate: 95, defects: 0,
             reservedBlowPieces: 0, reservedBlowWeight: 0,
@@ -140,6 +149,15 @@ export const KPIs: React.FC<KPIProps> = ({ data, setData, requestAuth }) => {
     ...d,
     displayLabel: `${d.month} ${d.year}`
   }));
+
+  const adjustYear = (direction: 'next' | 'prev') => {
+    const currentIdx = YEARS_RANGE.indexOf(newData.year || '');
+    if (direction === 'next' && currentIdx < YEARS_RANGE.length - 1) {
+      setNewData({ ...newData, year: YEARS_RANGE[currentIdx + 1] });
+    } else if (direction === 'prev' && currentIdx > 0) {
+      setNewData({ ...newData, year: YEARS_RANGE[currentIdx - 1] });
+    }
+  };
 
   return (
     <div className="space-y-10 pb-20 px-2">
@@ -330,11 +348,45 @@ export const KPIs: React.FC<KPIProps> = ({ data, setData, requestAuth }) => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="space-y-2">
                         <label className="text-xs font-black text-slate-600 mr-2 uppercase tracking-wide">السنة</label>
-                        <input required type="text" value={newData.year} onChange={(e) => setNewData({...newData, year: e.target.value})} className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-royal-500/10 focus:border-royal-500 outline-none font-bold text-slate-700 bg-slate-50/50" placeholder="مثال: 2024" />
+                        <div className="flex items-center gap-2">
+                            <button 
+                              type="button" 
+                              onClick={() => adjustYear('prev')}
+                              className="p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-royal-50 hover:text-royal-700 transition-all shadow-sm"
+                            >
+                              <ChevronRight className="w-5 h-5" />
+                            </button>
+                            <select 
+                              required 
+                              value={newData.year} 
+                              onChange={(e) => setNewData({...newData, year: e.target.value})} 
+                              className="flex-1 px-3 py-3 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-royal-500/10 focus:border-royal-500 outline-none font-bold text-slate-700 bg-slate-50/50 appearance-none text-center"
+                            >
+                              {YEARS_RANGE.map(year => (
+                                <option key={year} value={year}>{year}</option>
+                              ))}
+                            </select>
+                            <button 
+                              type="button" 
+                              onClick={() => adjustYear('next')}
+                              className="p-3 bg-slate-50 border border-slate-200 rounded-xl hover:bg-royal-50 hover:text-royal-700 transition-all shadow-sm"
+                            >
+                              <ChevronLeft className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
                     <div className="space-y-2">
                         <label className="text-xs font-black text-slate-600 mr-2 uppercase tracking-wide">اسم الشهر</label>
-                        <input required value={newData.month} onChange={(e) => setNewData({...newData, month: e.target.value})} className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-royal-500/10 focus:border-royal-500 outline-none font-bold text-slate-700 bg-slate-50/50" placeholder="مثال: أكتوبر" />
+                        <select 
+                          required 
+                          value={newData.month} 
+                          onChange={(e) => setNewData({...newData, month: e.target.value})} 
+                          className="w-full px-5 py-3.5 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-royal-500/10 focus:border-royal-500 outline-none font-bold text-slate-700 bg-slate-50/50 appearance-none"
+                        >
+                          {ARABIC_MONTHS.map(month => (
+                            <option key={month} value={month}>{month}</option>
+                          ))}
+                        </select>
                     </div>
                     <div className="space-y-2">
                         <label className="text-xs font-black text-slate-600 mr-2 uppercase tracking-wide">نسبة الجودة %</label>

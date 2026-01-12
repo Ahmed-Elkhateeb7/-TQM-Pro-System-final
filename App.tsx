@@ -32,24 +32,7 @@ const INITIAL_DOCS: DocumentFile[] = [
   { id: '2', name: 'تقرير التدقيق الداخلي Q1', type: 'excel', size: '1.1 MB', date: '2024-04-05', url: '#' },
 ];
 
-const INITIAL_KPI_DATA: KPIData[] = [
-  { 
-    month: 'يناير', year: '2024', qualityRate: 92, defects: 12,
-    reservedBlowPieces: 450, reservedBlowWeight: 112.5,
-    reservedInjectionPieces: 320, reservedInjectionWeight: 64,
-    scrappedPieces: 85, scrappedWeight: 21.2,
-    ncrShift1: 2, ncrShift2: 4, ncrShift3: 1,
-    totalSupplied: 15000, totalReturned: 150, totalComplaints: 3
-  },
-  { 
-    month: 'فبراير', year: '2024', qualityRate: 94, defects: 8,
-    reservedBlowPieces: 380, reservedBlowWeight: 95,
-    reservedInjectionPieces: 210, reservedInjectionWeight: 42,
-    scrappedPieces: 60, scrappedWeight: 15,
-    ncrShift1: 1, ncrShift2: 2, ncrShift3: 2,
-    totalSupplied: 18000, totalReturned: 110, totalComplaints: 1
-  }
-];
+const INITIAL_KPI_DATA: KPIData[] = [];
 
 function App() {
   const [currentView, setCurrentView] = useState<PageView>('dashboard');
