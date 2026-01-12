@@ -7,7 +7,7 @@ import {
 } from 'recharts';
 import { 
   FileSpreadsheet, Plus, X, Boxes, Trash2, ShoppingCart, 
-  TrendingUp, ShieldCheck, Activity, History, MessageSquareWarning 
+  TrendingUp, ShieldCheck, Activity, History, MessageSquareWarning, FileDown 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -72,6 +72,50 @@ export const KPIs: React.FC<KPIProps> = ({ data, setData, requestAuth }) => {
     }
   };
 
+  const handleExportCSV = () => {
+    const headers = [
+      'الشهر', 'السنة', 'نسبة الجودة %', 'عدد العيوب', 
+      'محجوز نفخ (قطعة)', 'محجوز نفخ (وزن)', 
+      'محجوز حقن (قطعة)', 'محجوز حقن (وزن)', 
+      'هالك (قطعة)', 'هالك (وزن)', 
+      'NCR وردية أ', 'NCR وردية ب', 'NCR وردية ج', 
+      'إجمالي المورد', 'إجمالي المرتجع', 'إجمالي الشكاوى'
+    ];
+    
+    const csvRows = data.map(d => [
+      d.month,
+      d.year,
+      d.qualityRate,
+      d.defects,
+      d.reservedBlowPieces,
+      d.reservedBlowWeight,
+      d.reservedInjectionPieces,
+      d.reservedInjectionWeight,
+      d.scrappedPieces,
+      d.scrappedWeight,
+      d.ncrShift1,
+      d.ncrShift2,
+      d.ncrShift3,
+      d.totalSupplied,
+      d.totalReturned,
+      d.totalComplaints
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...csvRows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `KPI_Analytics_Report_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const ChartCard = ({ title, icon: Icon, color, children }: any) => (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -115,9 +159,12 @@ export const KPIs: React.FC<KPIProps> = ({ data, setData, requestAuth }) => {
                 <Plus className="w-5 h-5" />
                 تحديث البيانات
             </button>
-            <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-8 py-3.5 bg-royal-800 text-white rounded-2xl hover:bg-royal-900 transition-all shadow-xl shadow-royal-800/30 font-bold">
+            <button 
+                onClick={handleExportCSV}
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-8 py-3.5 bg-royal-800 text-white rounded-2xl hover:bg-royal-900 transition-all shadow-xl shadow-royal-800/30 font-bold"
+            >
                 <FileSpreadsheet className="w-5 h-5" />
-                تصدير PDF
+                تصدير CSV
             </button>
         </div>
       </div>
